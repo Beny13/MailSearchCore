@@ -1,45 +1,62 @@
 package mailsearchcore;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MailSearchCore {
+    boolean running = false;
+    
     CampaignManager cm;
     
-    public int mailersNumber = 2;
     public int scrappersNumber = 2;
+    public int mailersNumber = 2;
     
+    private ArrayList<Scrapper> scrappers;
     private ArrayList<Mailer> mailers;
     
     public MailSearchCore() {
     }
     
-    public MailSearchCore(int mailersNumber, int scrappersNumber) {
-        this.mailersNumber = mailersNumber;
+    public MailSearchCore(int scrappersNumber, int mailersNumber) {
         this.scrappersNumber = scrappersNumber;
+        this.mailersNumber = mailersNumber;
     }
     
     public void start() {
-        System.out.println("Core started with "+mailersNumber+" mailers and "+scrappersNumber+" scrappers");
+        System.out.println("Core started with "+scrappersNumber+" scrappers and "+mailersNumber+" mailers");
         
         cm = new CampaignManager();
         
-        mailers = new ArrayList<>();
+        scrappers = new ArrayList<>();
+        for (int i = 0; i < scrappersNumber; i++){
+            Scrapper scrapper = new Scrapper(cm, i);
+            scrapper.start();
+            scrappers.add(scrapper);
+        }
         
+        mailers = new ArrayList<>();
         for (int i = 0; i < mailersNumber; i++){
             Mailer mailer = new Mailer(cm, i);
             mailer.start();
             mailers.add(mailer);
         }
+        
+        running = true;
     }
     
     public void stop() {
         System.out.println("Core stopping...");
         cm.done = true;
+        
+        while (scrappers.size() > 0){
+            if (!scrappers.get(0).isAlive()){
+                System.out.println("Scrapper "+scrappers.get(0).getThreadNumber()+" ended");
+                scrappers.remove(0);
+            }
+        }
         
         while (mailers.size() > 0){
             if (!mailers.get(0).isAlive()){
@@ -48,6 +65,7 @@ public class MailSearchCore {
             }
         }
         
+        running = false;
         System.out.println("Core stopped");
     }
     
@@ -76,7 +94,7 @@ public class MailSearchCore {
     public static void main(String[] args) {
         banner();
         
-        MailSearchCore core = new MailSearchCore(4,4);
+        MailSearchCore core = new MailSearchCore(4,0);
         
         String input = "";
         
@@ -90,6 +108,10 @@ public class MailSearchCore {
             } else if (input.equals("stop")){
                 core.stop();
             }
+        }
+        
+        if (core.running){
+            core.stop();
         }
     }
 }

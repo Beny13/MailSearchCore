@@ -5,49 +5,52 @@
  */
 package mailsearchcore;
 
+import entities.Campaign;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 /**
  *
  * @author paul
  */
 public class CampaignManager {
+    public EntityManager em;
+    
     public boolean done;
     
-    public synchronized String tryGetKeyword() {
-        // ------------- INSERT HERE QUERY TO GET CAMPAIGN ENTITY -------------
-        
-        //Campaign campaign = getCampaign();
-        //return campaign.keyword;
-        
-        
-        // ------------- CLEAR THE CODE BELOW -------------
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(CampaignManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return "brouette";
-        // ------------- END CLEAR -------------
+    public CampaignManager() {
+        em = Persistence.createEntityManagerFactory("MailSearchCorePU").createEntityManager();
     }
     
-    public synchronized String tryGetCampaign() {
-        // ------------- INSERT HERE QUERY TO GET CAMPAIGN ENTITY -------------
+    public synchronized String getKeyword() {
+        Campaign campaign = getCampaign();
         
-        //Campaign campaign = getCampaign();
-        //return campaign;
+        if (campaign != null)
+            return campaign.getKeyword();
+        else 
+            return null;
+    }
+    
+    public synchronized Campaign getCampaign() {
+        List<Campaign> result = em.createNamedQuery("Campaign.findByStatus")
+                                    .setParameter("status", "SCRAPPING_PENDING")
+                                    .setMaxResults(1)
+                                    .getResultList();
         
-        
-        // ------------- CLEAR THE CODE BELOW -------------
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(CampaignManager.class.getName()).log(Level.SEVERE, null, ex);
+        if (result.size() > 0) {
+            Campaign campaign = result.get(0);
+            
+            em.getTransaction().begin();
+            campaign.setStatus("SCRAPPING_STARTED");
+            em.getTransaction().commit();
+            
+            return campaign;
+        } else {
+            return null;
         }
-        
-        return null;
-        // ------------- END CLEAR -------------
     }
 }

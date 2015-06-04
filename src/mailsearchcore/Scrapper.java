@@ -5,17 +5,15 @@
  */
 package mailsearchcore;
 
-import entities.Campaign;
-
 /**
  *
  * @author paul
  */
-public class Mailer extends Thread {
+public class Scrapper extends Thread {
     private final CampaignManager campaignManager;
     private final int threadNumber;
     
-    public Mailer(CampaignManager campaignManager,int threadNumber) {
+    public Scrapper(CampaignManager campaignManager,int threadNumber) {
         this.campaignManager = campaignManager;
         this.threadNumber = threadNumber;
     }
@@ -26,7 +24,11 @@ public class Mailer extends Thread {
     
     public void run() {
         while(!campaignManager.done){
-            Campaign campaign = campaignManager.getCampaign();
+            String keyword = campaignManager.getKeyword();
+            
+            if (keyword == null){
+                System.out.println("Scrapper "+threadNumber+": No more keywords to process...");
+            }
         }
     }
 }
