@@ -19,6 +19,7 @@ import org.json.JSONObject;
 public class SearchApiCaller {
     private static final String accountKey = "UbGWTVoHF1mZbq6aURhLr0MbjsV3EQ40sK7NPu3I2Dk";
     private static final String bingUrlPattern = "https://api.datamarket.azure.com/Bing/Search/Web?Query=%%27%s%%27&$format=JSON";
+    private static final int maxResults = 3;
 
     public ArrayList<String> findURLFromKeyword(String keyword) throws IOException {
         ArrayList<String> addresses = new ArrayList<>();
@@ -40,7 +41,7 @@ public class SearchApiCaller {
             }
             final JSONObject json = new JSONObject(response.toString());
             final JSONArray results = json.getJSONObject("d").getJSONArray("results");
-            for (int i = 0; i < results.length(); i++) {
+            for (int i = 0; i < Math.min(maxResults, results.length()); i++) {
                 addresses.add((String)results.getJSONObject(i).get("Url"));
             }
         }

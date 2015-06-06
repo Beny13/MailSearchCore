@@ -8,67 +8,67 @@ import java.util.Scanner;
 
 public class MailSearchCore {
     boolean running = false;
-    
+
     CampaignManager cm;
-    
+
     public int scrappersNumber = 2;
     public int mailersNumber = 2;
-    
+
     private ArrayList<Scrapper> scrappers;
     private ArrayList<Mailer> mailers;
-    
+
     public MailSearchCore() {
     }
-    
+
     public MailSearchCore(int scrappersNumber, int mailersNumber) {
         this.scrappersNumber = scrappersNumber;
         this.mailersNumber = mailersNumber;
     }
-    
+
     public void start() {
         System.out.println("Core started with "+scrappersNumber+" scrappers and "+mailersNumber+" mailers");
-        
+
         cm = new CampaignManager();
-        
+
         scrappers = new ArrayList<>();
         for (int i = 0; i < scrappersNumber; i++){
             Scrapper scrapper = new Scrapper(cm, i);
             scrapper.start();
             scrappers.add(scrapper);
         }
-        
+
         mailers = new ArrayList<>();
         for (int i = 0; i < mailersNumber; i++){
             Mailer mailer = new Mailer(cm, i);
             mailer.start();
             mailers.add(mailer);
         }
-        
+
         running = true;
     }
-    
+
     public void stop() {
         System.out.println("Core stopping...");
         cm.done = true;
-        
+
         while (scrappers.size() > 0){
             if (!scrappers.get(0).isAlive()){
                 System.out.println("Scrapper "+scrappers.get(0).getThreadNumber()+" ended");
                 scrappers.remove(0);
             }
         }
-        
+
         while (mailers.size() > 0){
             if (!mailers.get(0).isAlive()){
                 System.out.println("Mailer "+mailers.get(0).getThreadNumber()+" ended");
                 mailers.remove(0);
             }
         }
-        
+
         running = false;
         System.out.println("Core stopped");
     }
-    
+
     public static void banner() {
         BufferedReader br = null;
 
@@ -90,26 +90,26 @@ public class MailSearchCore {
             }
         }
     }
-    
+
     public static void main(String[] args) {
         banner();
-        
+
         MailSearchCore core = new MailSearchCore(4,0);
-        
+
         String input = "";
-        
+
         while (!input.equals("exit")){
             System.out.print("#: ");
             Scanner in = new Scanner(System.in);
             input = in.nextLine();
-            
+
             if (input.equals("start")){
                 core.start();
             } else if (input.equals("stop")){
                 core.stop();
             }
         }
-        
+
         if (core.running){
             core.stop();
         }

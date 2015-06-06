@@ -39,6 +39,13 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Campaign.findByMailObject", query = "SELECT c FROM Campaign c WHERE c.mailObject = :mailObject"),
     @NamedQuery(name = "Campaign.findByMailFileName", query = "SELECT c FROM Campaign c WHERE c.mailFileName = :mailFileName")})
 public class Campaign implements Serializable {
+    public static final String SCRAPPING_PENDING = "SCRAPPING_PENDING";
+    public static final String SCRAPPING_STARTED = "SCRAPPING_STARTED";
+    public static final String SCRAPPING_DONE = "SCRAPPING_DONE";
+    public static final String MAILING_PENDING = "MAILING_PENDING";
+    public static final String MAILING_STARTED = "MAILING_STARTED";
+    public static final String MAILING_DONE = "MAILING_DONE";
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -177,5 +184,5 @@ public class Campaign implements Serializable {
     public String toString() {
         return "entities.Campaign[ id=" + id + " ]";
     }
-    
+
 }

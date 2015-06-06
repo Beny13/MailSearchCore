@@ -29,10 +29,11 @@ public class Scrapper extends Thread {
     public void run() {
         while(!campaignManager.done) {
             Campaign campaign = campaignManager.getCampaign();
-            String keyword = campaign.getKeyword();
-            if (keyword == null) {
+            if (campaign == null || campaign.getKeyword() == null) {
                 System.out.println("Scrapper "+threadNumber+": No more keywords to process...");
+                continue;
             }
+            String keyword = campaign.getKeyword();
 
             ArrayList<String> urls;
             try {
@@ -54,6 +55,7 @@ public class Scrapper extends Thread {
 
             if (!addresses.isEmpty()) {
                 this.campaignManager.insertAddressesForCampaign(campaign.getId(), addresses);
+                this.campaignManager.noticeScrappingDone(campaign);
             }
         }
     }

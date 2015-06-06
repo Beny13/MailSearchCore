@@ -34,7 +34,7 @@ public class CampaignManager {
 
     public synchronized Campaign getCampaign() {
         List<Campaign> result = em.createNamedQuery("Campaign.findByStatus")
-                                    .setParameter("status", "SCRAPPING_PENDING")
+                                    .setParameter("status", Campaign.SCRAPPING_PENDING)
                                     .setMaxResults(1)
                                     .getResultList();
 
@@ -42,7 +42,7 @@ public class CampaignManager {
             Campaign campaign = result.get(0);
 
             em.getTransaction().begin();
-            campaign.setStatus("SCRAPPING_STARTED");
+            campaign.setStatus(Campaign.SCRAPPING_STARTED);
             em.getTransaction().commit();
 
             return campaign;
@@ -56,6 +56,11 @@ public class CampaignManager {
             em.persist(new Email(campaingId, addresse, true));
         }
 
+        em.flush();
+    }
+
+    void noticeScrappingDone(Campaign campaign) {
+        campaign.setStatus(Campaign.SCRAPPING_DONE);
         em.flush();
     }
 }
