@@ -89,7 +89,7 @@ public class Email implements Serializable {
         return campaignId;
     }
 
-    public void setCampaignId(Campaign campaignId) {
+    public void setCampaign(Campaign campaignId) {
         this.campaignId = campaignId;
     }
 

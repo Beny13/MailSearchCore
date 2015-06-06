@@ -24,7 +24,7 @@ public class SearchApiCaller {
     public ArrayList<String> findURLFromKeyword(String keyword) throws IOException {
         ArrayList<String> addresses = new ArrayList<>();
 
-        final String query = URLEncoder.encode("'what      is omonoia'", Charset.defaultCharset().name());
+        final String query = URLEncoder.encode(keyword, Charset.defaultCharset().name());
         final String bingUrl = String.format(bingUrlPattern, query);
 
         final String accountKeyEnc = Base64.getEncoder().encodeToString((accountKey + ":" + accountKey).getBytes());

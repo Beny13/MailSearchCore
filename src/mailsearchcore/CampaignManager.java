@@ -51,16 +51,22 @@ public class CampaignManager {
         }
     }
 
-    public synchronized void insertAddressesForCampaign(int campaingId, ArrayList<String> addresses) {
-        for (String addresse : addresses) {
-            em.persist(new Email(campaingId, addresse, true));
+    public synchronized void insertAddressesForCampaign(Campaign campaign, ArrayList<String> addresses) {
+        em.getTransaction().begin();
+        for (String address : addresses) {
+            Email newEmail = new Email();
+            newEmail.setCampaign(campaign);
+            newEmail.setEmail(address);
+            newEmail.setSelected(true);
+            em.persist(newEmail);
         }
 
-        em.flush();
+        em.getTransaction().commit();
     }
 
     void noticeScrappingDone(Campaign campaign) {
+        em.getTransaction().begin();
         campaign.setStatus(Campaign.SCRAPPING_DONE);
-        em.flush();
+        em.getTransaction().commit();
     }
 }

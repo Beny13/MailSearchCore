@@ -3,6 +3,8 @@ package mailsearchcore;
 import entities.Campaign;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -31,6 +33,12 @@ public class Scrapper extends Thread {
             Campaign campaign = campaignManager.getCampaign();
             if (campaign == null || campaign.getKeyword() == null) {
                 System.out.println("Scrapper "+threadNumber+": No more keywords to process...");
+                try {
+                    this.sleep(500);
+                } catch (InterruptedException ex) {
+                    System.out.println("Scrapper "+threadNumber+": Awaken during sleep...");
+                    continue;
+                }
                 continue;
             }
             String keyword = campaign.getKeyword();
@@ -53,10 +61,8 @@ public class Scrapper extends Thread {
                 }
             }
 
-            if (!addresses.isEmpty()) {
-                this.campaignManager.insertAddressesForCampaign(campaign.getId(), addresses);
-                this.campaignManager.noticeScrappingDone(campaign);
-            }
+            this.campaignManager.insertAddressesForCampaign(campaign, addresses);
+            this.campaignManager.noticeScrappingDone(campaign);
         }
     }
 }
