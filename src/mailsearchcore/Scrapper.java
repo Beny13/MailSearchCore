@@ -1,9 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mailsearchcore;
+
+import entities.Campaign;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
@@ -12,22 +11,49 @@ package mailsearchcore;
 public class Scrapper extends Thread {
     private final CampaignManager campaignManager;
     private final int threadNumber;
-    
+    private final SearchApiCaller apiCaller;
+    private final WebPageParser parser;
+
     public Scrapper(CampaignManager campaignManager,int threadNumber) {
         this.campaignManager = campaignManager;
         this.threadNumber = threadNumber;
+        this.apiCaller = new SearchApiCaller();
+        this.parser = new WebPageParser();
     }
-    
+
     public int getThreadNumber() {
         return threadNumber;
     }
-    
+
+    @Override
     public void run() {
-        while(!campaignManager.done){
-            String keyword = campaignManager.getKeyword();
-            
-            if (keyword == null){
+        while(!campaignManager.done) {
+            Campaign campaign = campaignManager.getCampaign();
+            String keyword = campaign.getKeyword();
+            if (keyword == null) {
                 System.out.println("Scrapper "+threadNumber+": No more keywords to process...");
+            }
+
+            ArrayList<String> urls;
+            try {
+                urls = this.apiCaller.findURLFromKeyword(keyword);
+            } catch (Exception e) {
+                System.out.println("Scrapper "+threadNumber+": Error during URL scrapping...");
+                continue;
+            }
+
+            ArrayList<String> addresses = new ArrayList<>();
+            for (String url : urls) {
+                try {
+                    addresses.addAll(this.parser.findAddressesFromURL(url));
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("Scrapper "+threadNumber+": Error during address scrapping...");
+                    continue;
+                }
+            }
+
+            if (!addresses.isEmpty()) {
+                this.campaignManager.insertAddressesForCampaign(campaign.getId(), addresses);
             }
         }
     }
