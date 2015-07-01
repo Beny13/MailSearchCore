@@ -118,4 +118,9 @@ public class MailSearchCore {
             core.stop();
         }
     }
+    
+    public static void sout(String value) {
+        System.out.println(value);
+        System.out.print("#: ");
+    }
 }

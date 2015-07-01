@@ -48,7 +48,7 @@ public class Mailer extends Thread {
 
     public void shutdown() {
         interrputFlag = true;
-        System.out.println("Mailer "+threadNumber+" shutting down...");
+        MailSearchCore.sout("Mailer "+threadNumber+" shutting down...");
     }
 
     public boolean isShuttingDown() {
@@ -64,19 +64,19 @@ public class Mailer extends Thread {
                 if (campaign != null){
                     if (campaign.getMailContent() == null || campaign.getMailContent().isEmpty() ||
                         campaign.getMailObject() == null || campaign.getMailObject().isEmpty()) {
-                        System.out.println("Mailer "+threadNumber+": Error incorrect campaign configuration...");
+                        MailSearchCore.sout("Mailer "+threadNumber+": Error incorrect campaign configuration...");
                         campaignManager.declareCampaignAsFailed(campaign);
                     } else {
                         ArrayList<Email> emails = new ArrayList<>(campaign.getEmailCollection());
                         if (emails.isEmpty()) {
-                            System.out.println("Mailer "+threadNumber+": Error no emails found for this campaign...");
+                            MailSearchCore.sout("Mailer "+threadNumber+": Error no emails found for this campaign...");
                             campaignManager.declareCampaignAsFailed(campaign);
                         } else {
-                            System.out.println("Mailer "+threadNumber+": Start mailing campaign "+campaign.getKeyword());
+                            MailSearchCore.sout("Mailer "+threadNumber+": Start mailing campaign "+campaign.getKeyword());
 
                             for (Email email : emails){
                                 // sendMail(email.getEmail(), campaign.getMailObject(), campaign.getMailContent(), campaign.getMailFileContent(), campaign.getMailFileName());
-                                sendMail("paul.fiorentino@epsi.fr", campaign.getMailObject(), email + ": " + campaign.getMailContent(), campaign.getMailFileContent(), campaign.getMailFileName());
+                                sendMail("paul.fiorentino@epsi.fr", campaign.getMailObject(), email.getEmail() + ": " + campaign.getMailContent(), campaign.getMailFileContent(), campaign.getMailFileName());
                                 sleep(1000);
                             }
 
@@ -84,12 +84,12 @@ public class Mailer extends Thread {
                         }
                     }
                 } else {
-                    System.out.println("Mailer "+threadNumber+": No mail campaign to process...");
+                    //MailSearchCore.sout("Mailer "+threadNumber+": No mail campaign to process...");
                 }
 
                 sleep(2000);
             } catch (InterruptedException ex) {
-                System.out.println("Mailer "+threadNumber+": Awaken during sleep...");
+                MailSearchCore.sout("Mailer "+threadNumber+": Awaken during sleep...");
             }
         }
     }
@@ -130,7 +130,7 @@ public class Mailer extends Thread {
 
            Transport.send(message);
 
-           System.out.println("Sent message successfully....");
+           MailSearchCore.sout("Sent message successfully....");
 
         } catch (MessagingException e) {
               throw new RuntimeException(e);
