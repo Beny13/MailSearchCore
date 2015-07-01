@@ -49,11 +49,11 @@ public class MailSearchCore {
 
     public void stop() {
         System.out.println("Core stopping...");
-        
+
         while (scrappers.size() > 0){
             if (!scrappers.get(0).isShuttingDown())
                 scrappers.get(0).shutdown();
-            
+
             if (!scrappers.get(0).isAlive()){
                 System.out.println("Scrapper "+scrappers.get(0).getThreadNumber()+" ended");
                 scrappers.remove(0);

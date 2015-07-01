@@ -31,38 +31,38 @@ import javax.mail.util.ByteArrayDataSource;
 public class Mailer extends Thread {
     private static final String USERNAME = "paul.fiorentino@epsi.fr";
     private static final String PASSWORD = "775SYH";
-    
+
     private final CampaignManager campaignManager;
     private final int threadNumber;
-    
+
     private boolean interrputFlag = false;
-    
+
     public Mailer(CampaignManager campaignManager,int threadNumber) {
         this.campaignManager = campaignManager;
         this.threadNumber = threadNumber;
     }
-    
+
     public int getThreadNumber() {
         return threadNumber;
     }
-    
+
     public void shutdown() {
         interrputFlag = true;
         System.out.println("Mailer "+threadNumber+" shutting down...");
     }
-    
+
     public boolean isShuttingDown() {
         return interrputFlag;
     }
-    
+
     @Override
     public void run() {
         while(!interrputFlag){
             Campaign campaign = campaignManager.getMailingCampaign();
-        
+
             try {
                 if (campaign != null){
-                    if (campaign.getMailContent() == null || campaign.getMailContent().isEmpty() || 
+                    if (campaign.getMailContent() == null || campaign.getMailContent().isEmpty() ||
                         campaign.getMailObject() == null || campaign.getMailObject().isEmpty()) {
                         System.out.println("Mailer "+threadNumber+": Error incorrect campaign configuration...");
                         campaignManager.declareCampaignAsFailed(campaign);
@@ -73,30 +73,31 @@ public class Mailer extends Thread {
                             campaignManager.declareCampaignAsFailed(campaign);
                         } else {
                             System.out.println("Mailer "+threadNumber+": Start mailing campaign "+campaign.getKeyword());
-                            
+
                             for (Email email : emails){
-                                sendMail(email.getEmail(), campaign.getMailObject(), campaign.getMailContent(), campaign.getMailFileContent(), campaign.getMailFileName());
+                                // sendMail(email.getEmail(), campaign.getMailObject(), campaign.getMailContent(), campaign.getMailFileContent(), campaign.getMailFileName());
+                                sendMail("paul.fiorentino@epsi.fr", campaign.getMailObject(), email + ": " + campaign.getMailContent(), campaign.getMailFileContent(), campaign.getMailFileName());
                                 sleep(1000);
                             }
-                            
+
                             campaignManager.noticeMailingDone(campaign);
                         }
                     }
                 } else {
                     System.out.println("Mailer "+threadNumber+": No mail campaign to process...");
                 }
-                
+
                 sleep(2000);
             } catch (InterruptedException ex) {
                 System.out.println("Mailer "+threadNumber+": Awaken during sleep...");
             }
         }
     }
-    
+
     private void sendMail(String to, String subject, String text) {
         this.sendMail(to, subject, text, null, null);
     }
-    
+
     private void sendMail(String to, String subject, String text, byte[] data, String filename) {
         String from = "paul.fiorentino@epsi.fr";
         final String username = USERNAME;
@@ -120,13 +121,13 @@ public class Mailer extends Thread {
 
         try {
             Message message;
-            
+
             if (data != null && filename != null){
                 message = generateAttachmentMessage(to, subject, text, data, filename, from, session);
             } else {
                 message = generateTextMessage(to, subject, text, from, session);
             }
-           
+
            Transport.send(message);
 
            System.out.println("Sent message successfully....");
@@ -135,7 +136,7 @@ public class Mailer extends Thread {
               throw new RuntimeException(e);
         }
     }
-    
+
     private Message generateTextMessage(String to, String subject, String text, String from, Session session) throws MessagingException {
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(from));
@@ -144,10 +145,10 @@ public class Mailer extends Thread {
         InternetAddress.parse(to));
         message.setSubject(subject);
         message.setText(text);
-        
+
         return message;
     }
-    
+
     private Message generateAttachmentMessage(String to, String subject, String text, byte[] data, String filename, String from, Session session) throws MessagingException {
          Message message = new MimeMessage(session);
          message.setFrom(new InternetAddress(from));
@@ -168,7 +169,7 @@ public class Mailer extends Thread {
 
          // Send the complete message parts
          message.setContent(multipart);
-         
+
          return message;
     }
 }
