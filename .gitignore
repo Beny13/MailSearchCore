@@ -8,6 +8,11 @@
 *.war
 *.ear
 
+# Reinclude required libs (.jar)
+!javax.mail.jar
+!json-20141113.jar
+!jsoup-1.8.2.jar
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 

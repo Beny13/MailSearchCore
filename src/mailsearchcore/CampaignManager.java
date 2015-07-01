@@ -4,11 +4,8 @@ import entities.Campaign;
 import entities.Email;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 
 /**
  *
@@ -16,8 +13,6 @@ import javax.persistence.Query;
  */
 public class CampaignManager {
     public EntityManager em;
-
-    public boolean done;
 
     public CampaignManager() {
         em = Persistence.createEntityManagerFactory("MailSearchCorePU").createEntityManager();
@@ -50,23 +45,56 @@ public class CampaignManager {
             return null;
         }
     }
+    
+    public synchronized Campaign getMailingCampaign() {
+        List<Campaign> result = em.createNamedQuery("Campaign.findByStatus")
+                                    .setParameter("status", Campaign.MAILING_PENDING)
+                                    .setMaxResults(1)
+                                    .getResultList();
 
-    public synchronized void insertAddressesForCampaign(Campaign campaign, ArrayList<String> addresses) {
-        em.getTransaction().begin();
-        for (String address : addresses) {
-            Email newEmail = new Email();
-            newEmail.setCampaign(campaign);
-            newEmail.setEmail(address);
-            newEmail.setSelected(true);
-            em.persist(newEmail);
+        if (result.size() > 0) {
+            Campaign campaign = result.get(0);
+
+            em.getTransaction().begin();
+            campaign.setStatus(Campaign.MAILING_STARTED);
+            em.getTransaction().commit();
+
+            return campaign;
+        } else {
+            return null;
         }
-
-        em.getTransaction().commit();
     }
 
-    void noticeScrappingDone(Campaign campaign) {
+    public synchronized void insertAddressesForCampaign(Campaign campaign, ArrayList<String> addresses) {
+        if (addresses.size() > 0){
+            em.getTransaction().begin();
+            for (String address : addresses) {
+                Email newEmail = new Email();
+                newEmail.setCampaign(campaign);
+                newEmail.setEmail(address);
+                newEmail.setSelected(true);
+                em.persist(newEmail);
+            }
+
+            em.getTransaction().commit();
+        }
+    }
+
+    public synchronized void noticeScrappingDone(Campaign campaign) {
         em.getTransaction().begin();
         campaign.setStatus(Campaign.SCRAPPING_DONE);
+        em.getTransaction().commit();
+    }
+    
+    public synchronized void noticeMailingDone(Campaign campaign) {
+        em.getTransaction().begin();
+        campaign.setStatus(Campaign.MAILING_DONE);
+        em.getTransaction().commit();
+    }
+    
+    public synchronized void declareCampaignAsFailed(Campaign campaign) {
+        em.getTransaction().begin();
+        campaign.setStatus(Campaign.ERROR);
         em.getTransaction().commit();
     }
 }

@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author paul
  */
 @Entity
-@Table(name = "campaigns")
+@Table(name = "campaign")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Campaign.findAll", query = "SELECT c FROM Campaign c"),
@@ -45,6 +45,7 @@ public class Campaign implements Serializable {
     public static final String MAILING_PENDING = "MAILING_PENDING";
     public static final String MAILING_STARTED = "MAILING_STARTED";
     public static final String MAILING_DONE = "MAILING_DONE";
+    public static final String ERROR = "ERROR";
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -58,19 +59,19 @@ public class Campaign implements Serializable {
     @Basic(optional = false)
     @Column(name = "status")
     private String status;
-    @Column(name = "mail_object")
+    @Column(name = "mailObject")
     private String mailObject;
     @Lob
-    @Column(name = "mail_content")
+    @Column(name = "mailContent")
     private String mailContent;
-    @Column(name = "mail_file_name")
+    @Column(name = "mailFileName")
     private String mailFileName;
     @Lob
-    @Column(name = "mail_file_content")
+    @Column(name = "mailFileContent")
     private byte[] mailFileContent;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "campaignId")
     private Collection<Email> emailCollection;
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private User userId;
 

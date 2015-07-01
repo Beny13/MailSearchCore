@@ -11,8 +11,8 @@ public class MailSearchCore {
 
     CampaignManager cm;
 
-    public int scrappersNumber = 2;
-    public int mailersNumber = 2;
+    public int scrappersNumber;
+    public int mailersNumber;
 
     private ArrayList<Scrapper> scrappers;
     private ArrayList<Mailer> mailers;
@@ -49,9 +49,11 @@ public class MailSearchCore {
 
     public void stop() {
         System.out.println("Core stopping...");
-        cm.done = true;
-
+        
         while (scrappers.size() > 0){
+            if (!scrappers.get(0).isShuttingDown())
+                scrappers.get(0).shutdown();
+            
             if (!scrappers.get(0).isAlive()){
                 System.out.println("Scrapper "+scrappers.get(0).getThreadNumber()+" ended");
                 scrappers.remove(0);
@@ -59,6 +61,8 @@ public class MailSearchCore {
         }
 
         while (mailers.size() > 0){
+            if (!mailers.get(0).isShuttingDown())
+                mailers.get(0).shutdown();
             if (!mailers.get(0).isAlive()){
                 System.out.println("Mailer "+mailers.get(0).getThreadNumber()+" ended");
                 mailers.remove(0);
@@ -94,7 +98,7 @@ public class MailSearchCore {
     public static void main(String[] args) {
         banner();
 
-        MailSearchCore core = new MailSearchCore(4,0);
+        MailSearchCore core = new MailSearchCore(2,2);
 
         String input = "";
 
@@ -103,10 +107,13 @@ public class MailSearchCore {
             Scanner in = new Scanner(System.in);
             input = in.nextLine();
 
-            if (input.equals("start")){
-                core.start();
-            } else if (input.equals("stop")){
-                core.stop();
+            switch (input) {
+                case "start":
+                    core.start();
+                    break;
+                case "stop":
+                    core.stop();
+                    break;
             }
         }
 
