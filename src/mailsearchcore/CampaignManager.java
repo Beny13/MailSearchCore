@@ -18,15 +18,6 @@ public class CampaignManager {
         em = Persistence.createEntityManagerFactory("MailSearchCorePU").createEntityManager();
     }
 
-    public synchronized String getKeyword() {
-        Campaign campaign = getCampaign();
-
-        if (campaign != null)
-            return campaign.getKeyword();
-        else
-            return null;
-    }
-
     public synchronized Campaign getCampaign() {
         List<Campaign> result = em.createNamedQuery("Campaign.findByStatus")
                                     .setParameter("status", Campaign.SCRAPPING_PENDING)

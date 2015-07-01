@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MailSearchCore {
-    boolean running = false;
+    private boolean running = false;
 
     CampaignManager cm;
 
@@ -16,10 +16,7 @@ public class MailSearchCore {
 
     private ArrayList<Scrapper> scrappers;
     private ArrayList<Mailer> mailers;
-
-    public MailSearchCore() {
-    }
-
+    
     public MailSearchCore(int scrappersNumber, int mailersNumber) {
         this.scrappersNumber = scrappersNumber;
         this.mailersNumber = mailersNumber;
